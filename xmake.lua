@@ -48,7 +48,7 @@ mod_info = {
     mod_files = {"Scripts"}
 }
 
-skyrim_versions = {"ae"}
+skyrim_versions = {"ae", "ng"}
 
 -- skyrim_versions = {"ae", "se", "ng", "vr"}
 
@@ -81,7 +81,7 @@ if has_config("commonlib") then
         if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
-        add_packages("_Log_", "SkyrimScripting.Entrypoint")
+        add_packages("_Log_", "SkyrimScripting.Entrypoint", { public = true })
 end
 
 if has_config("build_example") then

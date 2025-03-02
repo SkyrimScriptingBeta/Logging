@@ -5,6 +5,7 @@
 #include <SKSE/SKSE.h>
 #include <SKSEPluginInfo.h>
 #include <Windows.h>
+#include <_Log_/Adapters/spdlog/Adapter.h>
 #include <spdlog/sinks/msvc_sink.h>
 
 #include <atomic>
@@ -59,5 +60,9 @@ namespace SkyrimScripting::Logging {
         spdlog::set_default_logger(std::move(loggerPtr));
         spdlog::set_level(spdlog::level::trace);
         spdlog::flush_on(spdlog::level::trace);
+
+        _Log_::Adapters::Spdlog::SpdlogAdapter::GetSingleton().SetSpdlogLogger(
+            spdlog::default_logger()
+        );
     }
 }

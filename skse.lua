@@ -23,6 +23,7 @@ for _, game_version in ipairs(skyrim_versions) do
         add_files("src/*.cpp")
         add_includedirs("include", { public = true }) -- Your library's own include path
         add_packages("skyrim-commonlib-" .. game_version)
+        add_packages("_Log_", "SkyrimScripting.Entrypoint", { public = true })
 
     target("_SksePlugin-" .. game_version:upper())
         set_basename(mod_info.name .. "-" .. game_version:upper())
@@ -38,5 +39,5 @@ for _, game_version in ipairs(skyrim_versions) do
             email = mod_info.email
         })
         add_deps("StaticLibrary-" .. game_version:upper())
-        add_packages("_Log_", "SkyrimScripting.Entrypoint")
+        add_packages("_Log_")
 end

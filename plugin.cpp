@@ -1,15 +1,5 @@
-#include <RE/Skyrim.h>
-#include <SKSE/SKSE.h>
+#include <SkyrimScripting/Entrypoint.h>
+#include <SkyrimScripting/Logging.h>
+#include <_Log_.h>
 
-extern "C" __declspec(dllexport) bool SKSEPlugin_Load(const SKSE::LoadInterface* a_skse) {
-    SKSE::Init(a_skse);
-
-    SKSE::GetMessagingInterface()->RegisterListener(
-        "SKSE",
-        [](SKSE::MessagingInterface::Message* a_msg) {
-            // if (a_msg->type == SKSE::MessagingInterface::kDataLoaded)
-        }
-    );
-
-    return true;
-}
+_SKSEPlugin_Init_ { _Log_("Hello from SkyrimScripting Logger example plugin!"); }
