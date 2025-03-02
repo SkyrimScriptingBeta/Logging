@@ -17,6 +17,16 @@ option("include_repo_skyrimscripting")
     set_default(true)
 option_end()
 
+option("include_repo_skyrimscripting_beta")
+    set_description("If true, add the SkyrimScripting Beta repository during build")
+    set_default(true)
+option_end()
+
+option("include_repo_mrowrlib")
+    set_description("If true, add the MrowrLib repository during build")
+    set_default(true)
+option_end()
+
 option("build_example")
     set_description("Build example project using this library")
     set_default(true)
@@ -27,7 +37,7 @@ option("build_papyrus_scripts")
     set_default(false)
 option_end()
 
-library_name = "MyStaticLibrary"
+library_name = "SkyrimScripting.Logging"
 
 -- Example SKSE plugin using the static library
 mod_info = {
@@ -38,15 +48,28 @@ mod_info = {
     mod_files = {"Scripts"}
 }
 
-skyrim_versions = {"ae", "se", "ng", "vr"}
+skyrim_versions = {"ae"}
+
+-- skyrim_versions = {"ae", "se", "ng", "vr"}
 
 if has_config("include_repo_skyrimscripting") then
     add_repositories("SkyrimScripting https://github.com/SkyrimScripting/Packages.git")
 end
 
+if has_config("include_repo_skyrimscripting_beta") then
+    add_repositories("SkyrimScriptingBeta https://github.com/SkyrimScriptingBeta/Packages.git")
+end
+
+if has_config("include_repo_mrowrlib") then
+    add_repositories("MrowrLib https://github.com/MrowrLib/Packages.git")
+end
+
 if has_config("require_commonlib") then
     add_requires(get_config("commonlib"))
 end
+
+add_requires("_Log_", "skse_plugin_info")
+add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae", include_repo_skyrimscripting = true }})
 
 if has_config("commonlib") then
     print("Building using CommonLib package: " .. get_config("commonlib"))
@@ -58,6 +81,7 @@ if has_config("commonlib") then
         if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
+        add_packages("_Log_", "SkyrimScripting.Entrypoint")
 end
 
 if has_config("build_example") then

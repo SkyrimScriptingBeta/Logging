@@ -14,6 +14,7 @@ end
 
 for _, game_version in ipairs(skyrim_versions) do
     add_requires("skyrim-commonlib-" .. game_version)
+    add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-" .. game_version } })
 end
 
 for _, game_version in ipairs(skyrim_versions) do
@@ -37,4 +38,5 @@ for _, game_version in ipairs(skyrim_versions) do
             email = mod_info.email
         })
         add_deps("StaticLibrary-" .. game_version:upper())
+        add_packages("_Log_", "SkyrimScripting.Entrypoint")
 end

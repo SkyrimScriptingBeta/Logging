@@ -1,0 +1,1 @@
+#include <SkyrimScripting/Entrypoint.h>
