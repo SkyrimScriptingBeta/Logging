@@ -2,6 +2,12 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 set_languages("c++23")
 
+add_cxxflags("/Zc:__cplusplus")
+add_cxxflags("/permissive-")
+add_cxxflags("/Zc:preprocessor")
+add_cxxflags("-Wno-gnu-zero-variadic-macro-arguments")
+add_cxxflags("-fms-extensions")
+
 option("commonlib")
     set_description("Which CommonLib package to use")
     set_default("skyrim-commonlib-ae")
@@ -68,7 +74,7 @@ if has_config("require_commonlib") then
     add_requires(get_config("commonlib"))
 end
 
-add_requires("_Log_", "skse_plugin_info")
+add_requires("_Log_", "global_macro_functions", "skse_plugin_info")
 add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae", include_repo_skyrimscripting = true }})
 
 if has_config("commonlib") then
@@ -81,7 +87,7 @@ if has_config("commonlib") then
         if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
-        add_packages("_Log_", "SkyrimScripting.Entrypoint", { public = true })
+        add_packages("_Log_", "global_macro_functions", "skse_plugin_info", "SkyrimScripting.Entrypoint", { public = true })
 end
 
 if has_config("build_example") then
