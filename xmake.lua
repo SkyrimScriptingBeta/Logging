@@ -2,12 +2,6 @@ add_rules("mode.debug", "mode.release", "mode.releasedbg")
 
 set_languages("c++23")
 
-add_cxxflags("/Zc:__cplusplus")
-add_cxxflags("/permissive-")
-add_cxxflags("/Zc:preprocessor")
-add_cxxflags("-Wno-gnu-zero-variadic-macro-arguments")
-add_cxxflags("-fms-extensions")
-
 option("commonlib")
     set_description("Which CommonLib package to use")
     set_default("skyrim-commonlib-ae")
@@ -88,6 +82,7 @@ if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
         add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
+        add_cxxflags("/Zc:preprocessor")
 end
 
 if has_config("build_example") then
