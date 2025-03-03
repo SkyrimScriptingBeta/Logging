@@ -28,6 +28,12 @@ for _, game_version in ipairs(skyrim_versions) do
         add_packages("skyrim-commonlib-" .. game_version)
         add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
         add_cxxflags("/Zc:preprocessor")
+        if has_config("use_log_library") then
+            add_packages("_Log_")
+        end
+        if has_config("use_skse_plugin_info_library") then
+            add_packages("skse_plugin_info")
+        end
 
     target("_SksePlugin-" .. game_version:upper())
         set_basename(mod_info.name .. "-" .. game_version:upper())
@@ -44,4 +50,5 @@ for _, game_version in ipairs(skyrim_versions) do
         })
         add_deps("StaticLibrary-" .. game_version:upper())
         add_packages("_Log_")
+        add_cxxflags("/Zc:preprocessor")
 end

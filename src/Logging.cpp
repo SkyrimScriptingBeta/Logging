@@ -15,10 +15,17 @@
 #include "SkyrimScripting/Logging/Config.h"
 #include "SkyrimScripting/Logging/Logging.h"
 
+// HMM / NOTE: as this is a static library now, this doesn't make as much sense:...
+
 // If SKSEPlugin is available, we'll use it to get the plugin name
 // otherwise we'll fall back to a provided name via macro definition
 #if __has_include(<SKSEPluginInfo.h>)
     #include <SKSEPluginInfo.h>
+#endif
+
+// If _Log_ is available, we'll setup its spdlog adapter
+#if __has_include(<_Log_/Adapters/spdlog/Adapter.h>)
+    #include <_Log_/Adapters/spdlog/Adapter.h>
 #endif
 
 namespace SkyrimScripting::Logging {
@@ -103,5 +110,11 @@ namespace SkyrimScripting::Logging {
         spdlog::set_default_logger(std::move(loggerPtr));
         spdlog::set_level(spdlog::level::trace);
         spdlog::flush_on(spdlog::level::trace);
+
+#if __has_include(<_Log_/Adapters/spdlog/Adapter.h>)
+        _Log_::Adapters::Spdlog::SpdlogAdapter::GetSingleton().SetSpdlogLogger(
+            spdlog::default_logger()
+        );
+#endif
     }
 }

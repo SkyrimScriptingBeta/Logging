@@ -32,6 +32,16 @@ option("build_example")
     set_default(true)
 option_end()
 
+option("use_log_library")
+    set_description("If true, builds with support for the _Log_ library")
+    set_default(false)
+option_end()
+
+option("use_skse_plugin_info_library")
+    set_description("If true, builds with support for the SKSEPluginInfo library")
+    set_default(false)
+option_end()
+
 option("build_papyrus_scripts")
     set_description("Build Papyrus scripts")
     set_default(false)
@@ -68,6 +78,15 @@ if has_config("require_commonlib") then
     add_requires(get_config("commonlib"))
 end
 
+if has_config("use_log_library") then
+    add_requires("_Log_")
+end
+
+if has_config("use_skse_plugin_info_library") then
+    add_requires("skse_plugin_info")
+end
+
+add_requires("_Log_")
 add_requires("global_macro_functions")
 add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae" }})
 
@@ -83,6 +102,12 @@ if has_config("commonlib") then
         end
         add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
         add_cxxflags("/Zc:preprocessor")
+        if has_config("use_log_library") then
+            add_packages("_Log_", { public = true })
+        end
+        if has_config("use_skse_plugin_info_library") then
+            add_packages("skse_plugin_info", { public = true })
+        end
 end
 
 if has_config("build_example") then

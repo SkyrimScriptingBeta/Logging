@@ -4,11 +4,12 @@
 
 #include <format>
 
-Logging_SetLogFileName("MyCustomFileName.log");
-Logging_SetLogFolder("D:/temp/");
+// Logging_SetLogFileName("MyCustomFileName.log");
+// Logging_SetLogFolder("D:/temp/");
 
 _SKSEPlugin_Init_ {
     _Log_("Hello from SkyrimScripting Logger example plugin!");
+    _Log_("THIS IS FROM _Log_ MACRO!");
 
     SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* msg) {
         if (msg->type == SKSE::MessagingInterface::kDataLoaded) {
