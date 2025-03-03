@@ -3,7 +3,6 @@
 
 // Allows us to check if a debugger is attached (optional, see below)
 #include <SKSE/SKSE.h>
-#include <SKSEPluginInfo.h>
 #include <Windows.h>
 #include <spdlog/sinks/msvc_sink.h>
 
@@ -13,6 +12,12 @@
 
 #include "SkyrimScripting/Logging/Config.h"
 #include "SkyrimScripting/Logging/Logging.h"
+
+// If SKSEPlugin is available, we'll use it to get the plugin name
+// otherwise we'll fall back to a provided name via macro definition
+#if __has_include(<SKSEPluginInfo.h>)
+    #include <SKSEPluginInfo.h>
+#endif
 
 namespace SkyrimScripting::Logging {
     namespace Config {
@@ -54,16 +59,31 @@ namespace SkyrimScripting::Logging {
         std::filesystem::path logPath = Config::log_full_path();
 
         if (logPath.empty()) {
-            if (!Config::log_folder_path().empty() && !Config::log_file_name().empty())
+            if (!Config::log_folder_path().empty() && !Config::log_file_name().empty()) {
                 logPath = Config::log_folder_path() / Config::log_file_name();
-            else if (!Config::log_folder_path().empty())
-                logPath = Config::log_folder_path() /
-                          std::format("{}.log", SKSEPluginInfo::GetPluginName());
-            else if (!Config::log_file_name().empty())
+            } else if (!Config::log_folder_path().empty()) {
+#if __has_include(<SKSEPluginInfo.h>)
+                auto* pluginName = SKSEPluginInfo::GetPluginName();
+#elifdef SKSE_PLUGIN_NAME
+                auto* pluginName = SKSE_PLUGIN_NAME;
+#else
+    #error \
+        "SKSEPluginInfo.h not found and SKSE_PLUGIN_NAME not defined. To use SkyrimScripting.Logging, please either provide a log file name or a log folder path OR define SKSE_PLUGIN_NAME"
+#endif
+                logPath = Config::log_folder_path() / std::format("{}.log", pluginName);
+            } else if (!Config::log_file_name().empty()) {
                 logPath = GetSKSELogFolder() / Config::log_file_name();
-            else
-                logPath =
-                    GetSKSELogFolder() / std::format("{}.log", SKSEPluginInfo::GetPluginName());
+            } else {
+#if __has_include(<SKSEPluginInfo.h>)
+                auto* pluginName = SKSEPluginInfo::GetPluginName();
+#elifdef SKSE_PLUGIN_NAME
+                auto* pluginName = SKSE_PLUGIN_NAME;
+#else
+    #error \
+        "SKSEPluginInfo.h not found and SKSE_PLUGIN_NAME not defined. To use SkyrimScripting.Logging, please either provide a log file name or a log folder path OR define SKSE_PLUGIN_NAME"
+#endif
+                logPath = GetSKSELogFolder() / std::format("{}.log", pluginName);
+            }
         }
 
         auto fileLoggerPtr =
