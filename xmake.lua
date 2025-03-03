@@ -83,7 +83,7 @@ if has_config("commonlib") then
         set_kind("static")
         add_files("src/*.cpp")
         add_includedirs("include", { public = true }) -- Your library's own include path
-        add_headerfiles("include/(**).h")
+        add_headerfiles("include/(**.h)")
         if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
