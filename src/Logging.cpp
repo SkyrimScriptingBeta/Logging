@@ -1,3 +1,5 @@
+#define _GLOBAL_MACRO_FUNCTIONS_COMPILATION_UNIT_NAME _SkyrimScripting_Logging_
+
 // Include spdlog support for a basic file logger
 #include <spdlog/sinks/basic_file_sink.h>
 

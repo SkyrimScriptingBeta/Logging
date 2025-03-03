@@ -75,7 +75,7 @@ if has_config("require_commonlib") then
 end
 
 add_requires("global_macro_functions")
-add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae", include_repo_skyrimscripting = true }})
+add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae" }})
 
 if has_config("commonlib") then
     print("Building using CommonLib package: " .. get_config("commonlib"))
