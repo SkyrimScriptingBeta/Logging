@@ -4,6 +4,11 @@
 
 #include <format>  // IWYU pragma: export
 
+#define PrintToConsole(...)                                                                                                                     \
+    __SkyrimScripting_Logging_ConsoleLog_CAT(__SkyrimScripting_Logging_ConsoleLog_, __SkyrimScripting_Logging_ConsoleLog_PP_NARG(__VA_ARGS__))( \
+        __VA_ARGS__                                                                                                                             \
+    )
+
 // Macro madness to support variadic arguments (with MSVC support)
 
 #define __SkyrimScripting_Logging_ConsoleLog_CAT_IMPL(a, b) a##b
@@ -93,10 +98,3 @@
         auto txt = std::format(fmt, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10); \
         _skyrimScriptingConsoleLog->Print(txt.c_str());                                           \
     }
-
-//
-
-#define ConsoleLog(...)                                                                                                                         \
-    __SkyrimScripting_Logging_ConsoleLog_CAT(__SkyrimScripting_Logging_ConsoleLog_, __SkyrimScripting_Logging_ConsoleLog_PP_NARG(__VA_ARGS__))( \
-        __VA_ARGS__                                                                                                                             \
-    )
