@@ -29,7 +29,7 @@
 
 #define __SkyrimScripting_Logging_ConsoleLog_1(arg)                          \
     if (auto* _skyrimScriptingConsoleLog = RE::ConsoleLog::GetSingleton()) { \
-        auto txt = std::format("ONE ARG {}", arg);                           \
+        auto txt = std::format("{}", arg);                                   \
         _skyrimScriptingConsoleLog->Print(txt.c_str());                      \
     }
 
