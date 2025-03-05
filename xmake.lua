@@ -86,9 +86,16 @@ if has_config("use_skse_plugin_info_library") then
     add_requires("skse_plugin_info")
 end
 
-add_requires("_Log_")
 add_requires("global_macro_functions")
-add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-ae" }})
+
+add_requires("SkyrimScripting.Entrypoint", { configs = {
+    commonlib = get_config("commonlib"),
+    require_commonlib = get_config("require_commonlib"),
+    include_repo_skyrimscripting = get_config("include_repo_skyrimscripting"),
+    include_repo_mrowrlib = get_config("include_repo_mrowrlib")
+    -- build_example = get_config("build_example"),
+    -- build_papyrus_scripts = get_config("build_papyrus_scripts")
+}})
 
 if has_config("commonlib") then
     print("Building using CommonLib package: " .. get_config("commonlib"))
@@ -101,7 +108,7 @@ if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
         add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
-        add_cxxflags("/Zc:preprocessor")
+        add_cxxflags("/Zc:preprocessor", { public = true })
         if has_config("use_log_library") then
             add_packages("_Log_", { public = true })
         end

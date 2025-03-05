@@ -13,11 +13,18 @@ else
 end
 
 for _, game_version in ipairs(skyrim_versions) do
-    -- Optional dependency, used by the SKSE plugin
+    -- Always used by the example
     add_requires("_Log_")
 
     add_requires("skyrim-commonlib-" .. game_version)
-    add_requires("SkyrimScripting.Entrypoint", { configs = { commonlib = "skyrim-commonlib-" .. game_version } })
+    add_requires("SkyrimScripting.Entrypoint", { configs = {
+        commonlib = get_config("commonlib"),
+        require_commonlib = get_config("require_commonlib"),
+        include_repo_skyrimscripting = get_config("include_repo_skyrimscripting"),
+        include_repo_mrowrlib = get_config("include_repo_mrowrlib"),
+        build_example = get_config("build_example"),
+        build_papyrus_scripts = get_config("build_papyrus_scripts")
+    }})
 end
 
 for _, game_version in ipairs(skyrim_versions) do
@@ -27,12 +34,12 @@ for _, game_version in ipairs(skyrim_versions) do
         add_includedirs("include", { public = true }) -- Your library's own include path
         add_packages("skyrim-commonlib-" .. game_version)
         add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
-        add_cxxflags("/Zc:preprocessor")
-        if has_config("use_log_library") then
-            add_packages("_Log_")
-        end
+        add_cxxflags("/Zc:preprocessor", { public = true })
+        -- if has_config("use_log_library") then
+            add_packages("_Log_", { public = true })
+        -- end
         if has_config("use_skse_plugin_info_library") then
-            add_packages("skse_plugin_info")
+            add_packages("skse_plugin_info", { public = true })
         end
 
     target("_SksePlugin-" .. game_version:upper())
@@ -50,5 +57,4 @@ for _, game_version in ipairs(skyrim_versions) do
         })
         add_deps("StaticLibrary-" .. game_version:upper())
         add_packages("_Log_")
-        add_cxxflags("/Zc:preprocessor")
 end
