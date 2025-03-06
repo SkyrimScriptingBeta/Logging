@@ -42,7 +42,7 @@ option("use_skse_plugin_info_library")
     set_default(false)
 option_end()
 
-option("use_skyrimscripting_entrypoint"
+option("use_skyrimscripting_entrypoint")
     set_description("If true, builds with support for the SkyrimScripting.Entrypoint library")
     set_default(false)
 option_end()
