@@ -42,6 +42,11 @@ option("use_skse_plugin_info_library")
     set_default(false)
 option_end()
 
+option("use_skyrimscripting_entrypoint"
+    set_description("If true, builds with support for the SkyrimScripting.Entrypoint library")
+    set_default(false)
+option_end()
+
 option("build_papyrus_scripts")
     set_description("Build Papyrus scripts")
     set_default(false)
@@ -58,7 +63,7 @@ mod_info = {
     mod_files = {"Scripts"}
 }
 
-skyrim_versions = {"ae", "ng"}
+skyrim_versions = {"ae"}
 
 -- skyrim_versions = {"ae", "se", "ng", "vr"}
 
@@ -88,14 +93,16 @@ end
 
 add_requires("global_macro_functions")
 
-add_requires("SkyrimScripting.Entrypoint", { configs = {
-    commonlib = get_config("commonlib"),
-    require_commonlib = get_config("require_commonlib"),
-    include_repo_skyrimscripting = get_config("include_repo_skyrimscripting"),
-    include_repo_mrowrlib = get_config("include_repo_mrowrlib")
-    -- build_example = get_config("build_example"),
-    -- build_papyrus_scripts = get_config("build_papyrus_scripts")
-}})
+if has_config("use_skyrimscripting_entrypoint") then
+    add_requires("SkyrimScripting.Entrypoint", { configs = {
+        commonlib = get_config("commonlib"),
+        require_commonlib = get_config("require_commonlib"),
+        include_repo_skyrimscripting = get_config("include_repo_skyrimscripting"),
+        include_repo_mrowrlib = get_config("include_repo_mrowrlib")
+        -- build_example = get_config("build_example"),
+        -- build_papyrus_scripts = get_config("build_papyrus_scripts")
+    }})
+end
 
 if has_config("commonlib") then
     print("Building using CommonLib package: " .. get_config("commonlib"))
@@ -107,13 +114,16 @@ if has_config("commonlib") then
         if has_config("commonlib") then
             add_packages(get_config("commonlib"), { public = true })
         end
-        add_packages("global_macro_functions", "SkyrimScripting.Entrypoint", { public = true })
+        add_packages("global_macro_functions", { public = true })
         add_cxxflags("/Zc:preprocessor", { public = true })
         if has_config("use_log_library") then
             add_packages("_Log_", { public = true })
         end
         if has_config("use_skse_plugin_info_library") then
             add_packages("skse_plugin_info", { public = true })
+        end
+        if has_config("use_skyrimscripting_entrypoint") then
+            add_packages("SkyrimScripting.Entrypoint", { public = true })
         end
 end
 
