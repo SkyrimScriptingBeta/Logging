@@ -1,10 +1,12 @@
-#define _GLOBAL_MACRO_FUNCTIONS_COMPILATION_UNIT_NAME _SkyrimScripting_Logging_
-
 // Include spdlog support for a basic file logger
 #include <spdlog/sinks/basic_file_sink.h>
 
+// TODO remove
+#include <RE/Skyrim.h>
+
 // Allows us to check if a debugger is attached (optional, see below)
 #include <SKSE/SKSE.h>
+#include <SKSEPluginInfo.h>
 #include <Windows.h>
 #include <spdlog/sinks/msvc_sink.h>
 
@@ -12,94 +14,44 @@
 #include <filesystem>
 #include <format>
 
-#include "SkyrimScripting/Logging/Config.h"
-#include "SkyrimScripting/Logging/Logging.h"
-
-// HMM / NOTE: as this is a static library now, this doesn't make as much sense:...
-
-// If SKSEPlugin is available, we'll use it to get the plugin name
-// otherwise we'll fall back to a provided name via macro definition
-#if __has_include(<SKSEPluginInfo.h>)
-    #include <SKSEPluginInfo.h>
-#endif
-
-// If _Log_ is available, we'll setup its spdlog adapter
-#if __has_include(<_Log_/Adapters/spdlog/Adapter.h>)
-    #include <_Log_/Adapters/spdlog/Adapter.h>
-#endif
-
-namespace SkyrimScripting::Logging {
-    namespace Config {
-        static bool                  _logging_disabled     = false;
-        static bool                  _log_to_debug_console = false;
-        static std::filesystem::path _log_full_path;
-        static std::filesystem::path _log_file_name;
-        static std::filesystem::path _log_folder_path;
-
-        const bool is_logging_disabled() { return _logging_disabled; }
-        void       set_logging_disabled(bool value) { _logging_disabled = value; }
-
-        const bool log_to_debug_console() { return _log_to_debug_console; }
-        void       set_log_to_debug_console(bool value) { _log_to_debug_console = value; }
-
-        const std::filesystem::path log_full_path() { return _log_full_path; }
-        void set_log_full_path(const std::filesystem::path& value) { _log_full_path = value; }
-
-        const std::filesystem::path log_file_name() { return _log_file_name; }
-        void set_log_file_name(const std::filesystem::path& value) { _log_file_name = value; }
-
-        const std::filesystem::path log_folder_path() { return _log_folder_path; }
-        void set_log_folder_path(const std::filesystem::path& value) { _log_folder_path = value; }
-    }
-
+namespace SkyrimScripting::Logging::Internal {
     std::atomic<bool> IsLoggerInitialized;
-
-    const std::filesystem::path GetSKSELogFolder() {
-        auto logsFolder = SKSE::log::log_directory();
-        if (!logsFolder)
-            SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");
-        return *logsFolder;
-    }
 
     void InitializeLogger() {
         if (IsLoggerInitialized.exchange(true)) return;
-        if (Config::is_logging_disabled()) return;
 
-        std::filesystem::path logPath = Config::log_full_path();
+        // return;  // Disable for now!
 
-        if (logPath.empty()) {
-            if (!Config::log_folder_path().empty() && !Config::log_file_name().empty()) {
-                logPath = Config::log_folder_path() / Config::log_file_name();
-            } else if (!Config::log_folder_path().empty()) {
-#if __has_include(<SKSEPluginInfo.h>)
-                auto* pluginName = SKSEPluginInfo::GetPluginName();
-#elifdef SKSE_PLUGIN_NAME
-                auto* pluginName = SKSE_PLUGIN_NAME;
-#else
-    #error \
-        "SKSEPluginInfo.h not found and SKSE_PLUGIN_NAME not defined. To use SkyrimScripting.Logging, please either provide a log file name or a log folder path OR define SKSE_PLUGIN_NAME"
-#endif
-                logPath = Config::log_folder_path() / std::format("{}.log", pluginName);
-            } else if (!Config::log_file_name().empty()) {
-                logPath = GetSKSELogFolder() / Config::log_file_name();
-            } else {
-#if __has_include(<SKSEPluginInfo.h>)
-                auto* pluginName = SKSEPluginInfo::GetPluginName();
-#elifdef SKSE_PLUGIN_NAME
-                auto* pluginName = SKSE_PLUGIN_NAME;
-#else
-    #error \
-        "SKSEPluginInfo.h not found and SKSE_PLUGIN_NAME not defined. To use SkyrimScripting.Logging, please either provide a log file name or a log folder path OR define SKSE_PLUGIN_NAME"
-#endif
-                logPath = GetSKSELogFolder() / std::format("{}.log", pluginName);
-            }
+        // Get the logs folder
+        auto logsFolder = SKSE::log::log_directory();
+        if (!logsFolder) {
+            SKSE::stl::report_and_fail("SKSE log_directory not provided, logs disabled.");
+            return;
         }
 
+        // Get the plugin name
+#ifdef SKSE_PLUGIN_NAME
+        auto* pluginName = SKSE_PLUGIN_NAME;
+#elif __has_include(<SKSEPluginInfo.h>)
+        auto* pluginName = SKSEPluginInfo::GetPluginName();
+#else
+    #error \
+        "SKSEPluginInfo.h not found and SKSE_PLUGIN_NAME not defined. To use SkyrimScripting.Logging, please either provide a log file name or a log folder path OR define SKSE_PLUGIN_NAME"
+#endif
+
+        // Construct the log path
+        auto logPath = *logsFolder / std::format("{}.log", pluginName);
+
+        // Create the file logger
         auto fileLoggerPtr =
             std::make_shared<spdlog::sinks::basic_file_sink_mt>(logPath.string(), true);
 
+        // Create the spdlog logger pointer
+        //
+        // Minor known issue: if logs directory was for some reason not created,
+        // this code does not run so the debugger logger is not created in that case
         std::shared_ptr<spdlog::logger> loggerPtr;
-        if (Config::log_to_debug_console() && IsDebuggerPresent()) {
+        if (IsDebuggerPresent()) {
             auto debugLoggerPtr = std::make_shared<spdlog::sinks::msvc_sink_mt>();
             spdlog::sinks_init_list loggers{std::move(fileLoggerPtr), std::move(debugLoggerPtr)};
             loggerPtr = std::make_shared<spdlog::logger>("log", loggers);
@@ -107,14 +59,40 @@ namespace SkyrimScripting::Logging {
             loggerPtr = std::make_shared<spdlog::logger>("log", std::move(fileLoggerPtr));
         }
 
+        // Setup the logger
         spdlog::set_default_logger(std::move(loggerPtr));
+
+        // The default level is the lowest level, trace
         spdlog::set_level(spdlog::level::trace);
         spdlog::flush_on(spdlog::level::trace);
 
-#if __has_include(<_Log_/Adapters/spdlog/Adapter.h>)
-        _Log_::Adapters::Spdlog::SpdlogAdapter::GetSingleton().SetSpdlogLogger(
-            spdlog::default_logger()
-        );
-#endif
+        // Use the default pattern
+        //
+        // You can override with something like:
+        // spdlog::set_pattern("[%Y-%m-%d %H:%M:%S.%e] [%l] %v");
     }
 }
+
+// Did we build with Entrypoint support built-in?
+//
+// If so, go ahead and register the logger initialization
+// to run as the VERY FIRST thing in the plugin
+// #if __has_include(<SkyrimScripting/Entrypoint.h>)
+#include <SkyrimScripting/Entrypoint.h>
+
+SKSEPlugin_Entrypoint_PreInit_HighPriority {
+    SkyrimScripting::Logging::Internal::InitializeLogger();
+    SKSE::log::info("INITIALIZED LOGGER");
+    return true;
+}
+
+SKSEPlugin_Entrypoint {
+    SKSE::GetMessagingInterface()->RegisterListener([](SKSE::MessagingInterface::Message* a_msg) {
+        if (a_msg->type == SKSE::MessagingInterface::kDataLoaded) {
+            if (auto* consoleLog = RE::ConsoleLog::GetSingleton()) {
+                consoleLog->Print("Hello from SkyrimScripting.Logging ENTRYPOINT!");
+            }
+        }
+    });
+}
+// #endif
