@@ -16,7 +16,14 @@ if has_config("build_example") then
     add_repositories("SkyrimScripting https://github.com/SkyrimScripting/Packages.git")
 end
 
+if not has_config("commonlib") then
+    print("Please specify the commonlib package to use with the --commonlib option")
+    return
+end
+
 add_requires(get_config("commonlib"))
+
+commonlib_version = get_config("commonlib"):match("skyrim%-commonlib%-(.*)")
 
 target(library_name)
     set_kind("static")
@@ -24,8 +31,6 @@ target(library_name)
     add_includedirs("include", { public = true })
     add_headerfiles("include/(**.h)")
     add_packages(get_config("commonlib"), { public = true })
-
-commonlib_version = get_config("commonlib"):match("skyrim%-commonlib%-(.*)")
 
 if has_config("build_example") then
     mod_info = { name = "Test plugin for " .. library_name }
