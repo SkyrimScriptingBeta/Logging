@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string_view>
-
-namespace SkyrimScripting::Logging {
-    void InitializeLogger(std::string_view pluginName);
-}
+#include "Logging/ConsoleLog.h"        // IWYU pragma: export
+#include "Logging/InitializeLogger.h"  // IWYU pragma: export
+#include "Logging/PrintToConsole.h"    // IWYU pragma: export

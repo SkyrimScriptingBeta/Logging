@@ -1,11 +1,11 @@
-#include "SkyrimScripting/Logging.h"
-
 #include <SKSE/SKSE.h>
 #include <Windows.h>
 #include <spdlog/sinks/basic_file_sink.h>
 #include <spdlog/sinks/msvc_sink.h>
 
 #include <format>
+
+#include "SkyrimScripting/Logging/InitializeLogger.h"
 
 namespace SkyrimScripting::Logging {
 
