@@ -18,10 +18,8 @@ namespace SkyrimScripting::Logging {
             return;
         }
 
-        spdlog::default_logger()->set_level()
-
-            // Construct the log path
-            auto logPath = *logsFolder / std::format("{}.log", pluginName);
+        // Construct the log path
+        auto logPath = *logsFolder / std::format("{}.log", pluginName);
 
         // Create the file logger
         auto fileLoggerPtr =
